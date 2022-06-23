@@ -1,17 +1,3 @@
----Aggregate & Window Functions 
---Retrieve & Compare each Business Entity Sales YTD to Min , Max,   & Best Performer Sales
-
-SELECT BusinessEntityID,
-       TerritoryID,
-       SalesQuota,
-       Bonus,
-       CommissionPct,
-       SalesYTD,
-       SUM(SalesYTD) OVER() AS Total_YTD_Sales,
-       MAX(SalesYTD) OVER() AS Max_YTD_Sales,
-       SalesYTD/MAX(SalesYTD) OVER()  AS [% of Best Performer] 
-
-FROM AdventureWorks2019.Sales.SalesPerson
 
 --- Joins, Aggregate, Window Functions
 ---Retrieve a query with First_name, Last_name from Person's Table , 
