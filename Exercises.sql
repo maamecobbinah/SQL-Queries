@@ -109,3 +109,32 @@ ListPrice - AVG(ListPrice) OVER(PARTITION BY t3.Name) AS AvgPriceByCategory
 FROM AdventureWorks2019.Production.Product t1
 JOIN AdventureWorks2019.Production.ProductSubcategory t2  ON t1.ProductSubcategoryID = t2.ProductSubcategoryID
 JOIN AdventureWorks2019.Production.ProductCategory t3  ON t2.ProductSubcategoryID = t3.ProductCategoryID
+
+---Enhance your main intial query  by adding a derived column called
+---"Category Price Rank" that ranks all products by ListPrice – within each category - in descending order. 
+---In other words, every product within a given category should be ranked relative to other products in the same category.
+SELECT
+t1.Name AS ProductName,
+ListPrice,
+t2.Name AS ProductSubcategory,
+t3.Name AS ProductCategory,
+ROW_NUMBER() OVER (ORDER  BY ListPrice DESC) AS Price_Rank,
+ROW_NUMBER() OVER (PARTITION BY t3.Name ORDER BY ListPrice DESC) AS CategoryPrice_Rank
+FROM AdventureWorks2019.Production.Product t1
+JOIN AdventureWorks2019.Production.ProductSubcategory t2  ON t1.ProductSubcategoryID = t2.ProductSubcategoryID
+JOIN AdventureWorks2019.Production.ProductCategory t3  ON t1.ProductSubcategoryID = t3.ProductCategoryID
+
+--Enhance your main query from above by adding a derived column called
+--"Top 5 Price In Category" that returns the string “Yes” if a product has one of the top 5 list prices in its product category, 
+--and “No” if it does not. You can try incorporating your logic from Exercise 3 into a CASE statement to make this work.
+SELECT
+t1.Name AS ProductName,
+ListPrice,
+t2.Name AS ProductSubcategory,
+t3.Name AS ProductCategory,
+ROW_NUMBER() OVER (ORDER  BY ListPrice DESC) AS Price_Rank,
+ROW_NUMBER() OVER (PARTITION BY t3.Name ORDER BY ListPrice DESC) AS CategoryPrice_Rank,
+(CASE WHEN (ROW_NUMBER() OVER (PARTITION BY t3.Name ORDER BY ListPrice DESC) <= 5 ) THEN 'Yes' ELSE 'No' END ) AS Top5
+FROM AdventureWorks2019.Production.Product t1
+JOIN AdventureWorks2019.Production.ProductSubcategory t2  ON t1.ProductSubcategoryID = t2.ProductSubcategoryID
+JOIN AdventureWorks2019.Production.ProductCategory t3  ON t1.ProductSubcategoryID = t3.ProductCategoryID
