@@ -138,3 +138,56 @@ ROW_NUMBER() OVER (PARTITION BY t3.Name ORDER BY ListPrice DESC) AS CategoryPric
 FROM AdventureWorks2019.Production.Product t1
 JOIN AdventureWorks2019.Production.ProductSubcategory t2  ON t1.ProductSubcategoryID = t2.ProductSubcategoryID
 JOIN AdventureWorks2019.Production.ProductCategory t3  ON t1.ProductSubcategoryID = t3.ProductCategoryID
+
+---Create a query with the following columns:
+---“PurchaseOrderID” from the Purchasing.PurchaseOrderHeader table
+---“OrderDate” from the Purchasing.PurchaseOrderHeader table
+---“TotalDue” from the Purchasing.PurchaseOrderHeader table
+---“Name” from the Purchasing.Vendor table, which can be aliased as “VendorName”*
+---*Join Purchasing.Vendor to Purchasing.PurchaseOrderHeader on BusinessEntityID = VendorID
+SELECT
+PurchaseOrderID,
+OrderDate,
+TotalDue,
+VendorID,
+Name AS VendorName
+FROM Purchasing.PurchaseOrderHeader t1
+JOIN Purchasing.Vendor t2 ON t1.VendorID =  t2.BusinessEntityID 
+WHERE OrderDate >= '2013-01-01'
+AND TotalDue > 500
+
+--Modify your query from above by adding a derived column called
+--"PrevOrderFromVendorAmt", that returns the “previous” TotalDue value 
+---(relative to the current row) within the group of all orders with the same vendor ID. 
+--We are defining “previous” based on order date.
+SELECT
+VendorID,
+Name AS VendorName,
+PurchaseOrderID,
+OrderDate,
+TotalDue,
+LAG(TotalDue, 1) OVER (PARTITION BY VendorID ORDER BY OrderDate) AS PreviousOrderDueAmt
+
+FROM Purchasing.PurchaseOrderHeader t1
+JOIN Purchasing.Vendor t2 ON t1.VendorID =  t2.BusinessEntityID 
+WHERE OrderDate >= '2013-01-01'
+AND TotalDue > 500
+ORDER BY VendorID, OrderDate
+
+--Modify your query from above by adding a derived column called
+--"NextOrderByEmployeeVendor", that returns the “next” vendor name (the “name” field from Purchasing.Vendor) 
+--within the group of all orders that have the same EmployeeID value in Purchasing.PurchaseOrderHeader. 
+--Similar to the last exercise, we are defining “next” based on order date.
+SELECT
+VendorID,
+Name AS VendorName,
+LEAD(Name, 1) OVER (PARTITION BY EmployeeID ORDER BY OrderDate) AS NextOrderByEmployeeVendor,
+PurchaseOrderID,
+OrderDate,
+TotalDue,
+LAG(TotalDue, 1) OVER (PARTITION BY VendorID ORDER BY OrderDate) AS PreviousOrderDueAmt
+FROM Purchasing.PurchaseOrderHeader t1
+JOIN Purchasing.Vendor t2 ON t1.VendorID =  t2.BusinessEntityID 
+WHERE OrderDate >= '2013-01-01'
+AND TotalDue > 500
+ORDER BY EmployeeID, OrderDate
