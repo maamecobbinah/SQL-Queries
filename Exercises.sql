@@ -191,3 +191,36 @@ JOIN Purchasing.Vendor t2 ON t1.VendorID =  t2.BusinessEntityID
 WHERE OrderDate >= '2013-01-01'
 AND TotalDue > 500
 ORDER BY EmployeeID, OrderDate
+--Write a query that displays the three most expensive orders, per vendor ID, from the Purchasing.PurchaseOrderHeader 
+--table. There should ONLY be three records per Vendor ID, even if some of the total amounts due are identical. 
+--"Most expensive" is defined by the amount in the "TotalDue" field.
+--Include the following fields in your output: PurchaseOrderID,VendorID, OrderDate, TaxAmt, Freight,TotalDue
+SELECT * FROM (SELECT 
+PurchaseOrderID,
+VendorID,
+OrderDate,
+SubTotal,
+TaxAmt,
+Freight,
+TotalDue,
+ROW_NUMBER() OVER(PARTITION BY VendorID ORDER BY TotalDue DESC) AS Max_TotalAmt
+FROM
+Purchasing.PurchaseOrderHeader) A1
+WHERE Max_TotalAmt <= 3
+
+--Modify your query from the first problem, such that the top three purchase order amounts are returned, 
+--regardless of how many records are returned per Vendor Id.
+--In other words, if there are multiple orders with the same total due amount, all should be returned as long as the 
+--total due amount for these orders is one of the top three.
+SELECT * FROM (SELECT 
+PurchaseOrderID,
+VendorID,
+OrderDate,
+SubTotal,
+TaxAmt,
+Freight,
+TotalDue,
+DENSE_RANK() OVER(PARTITION BY VendorID ORDER BY TotalDue DESC) AS Max_TotalAmt
+FROM
+Purchasing.PurchaseOrderHeader) A1
+WHERE Max_TotalAmt <= 3
