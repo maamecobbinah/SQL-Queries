@@ -287,3 +287,12 @@ FOR XML PATH('')),
 1,1,'') AS Product 
 FROM Production.ProductSubcategory A
 ORDER BY Name
+
+--Using PIVOT, write a query against the HumanResources.Employee table
+--that summarizes the average amount of vacation time for Sales Representatives, Buyers, and Janitors.
+SELECT * FROM 
+(SELECT JobTitle, VacationHours FROM HumanResources.Employee) A
+PIVOT(
+AVG(VacationHours)
+FOR JobTitle IN ([Sales Representative],[Buyer],[Janitor]) 
+)B 
