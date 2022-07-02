@@ -252,3 +252,38 @@ TotalDue,
 (SELECT COUNT(*) FROM Purchasing.PurchaseOrderDetail T2 WHERE T1.PurchaseOrderID = T2.PurchaseOrderID AND T2.RejectedQty = 0) AS NonRejectedItems,
 (SELECT MAX(UnitPrice) FROM Purchasing.PurchaseOrderDetail T2 WHERE T1.PurchaseOrderID = T2.PurchaseOrderID ) AS MostExpensiveItem
 FROM AdventureWorks2019.Purchasing.PurchaseOrderHeader T1
+
+---Select all records from the Purchasing.PurchaseOrderHeader table such that 
+---there is at least one item in the order with an order quantity greater than 500. 
+---The individual items tied to an order can be found in the Purchasing.PurchaseOrderDetail table.
+---Select the following columns:PurchaseOrderID, OrderDate, SubTotal, TaxAmt
+--- Sort by purchase order ID.
+SELECT 
+PurchaseOrderID,
+OrderDate,
+SubTotal,
+TaxAmt
+FROM  Purchasing.PurchaseOrderHeader t1
+WHERE EXISTS 
+(SELECT 
+1
+FROM Purchasing.PurchaseOrderDetail  t2 
+WHERE  t1.PurchaseOrderID = t2.PurchaseOrderID
+AND OrderQty > 500)
+ORDER BY 1
+
+---Create a query that displays all rows from the Production.ProductSubcategory table, and includes the following fields:
+---The "Name" field from Production.ProductSubcategory, which should be aliased as "SubcategoryName"
+---A derived field called "Products" which displays, for each Subcategory in Production.ProductSubcategory, 
+---a semicolon-separated list of all products from Production.Product contained within the given subcategory
+SELECT 
+A.*,
+ STUFF(
+(SELECT 
+': ' + CAST(Name AS VARCHAR)
+FROM  Production.Product  B
+WHERE A.ProductSubcategoryID = B.ProductSubcategoryID
+FOR XML PATH('')),
+1,1,'') AS Product 
+FROM Production.ProductSubcategory A
+ORDER BY Name
