@@ -224,3 +224,31 @@ DENSE_RANK() OVER(PARTITION BY VendorID ORDER BY TotalDue DESC) AS Max_TotalAmt
 FROM
 Purchasing.PurchaseOrderHeader) A1
 WHERE Max_TotalAmt <= 3
+
+---Write a query that outputs all records from the Purchasing.PurchaseOrderHeader table. 
+---Include the following columns from the table: PurchaseOrderID, VendorID, OrderDate, TotalDue
+---Add a derived column called NonRejectedItems which returns, for each purchase order ID in the query output, 
+---the number of line items from the Purchasing.PurchaseOrderDetail table which did not have any rejections (i.e., RejectedQty = 0).
+---Use a correlated subquery to do this.
+SELECT 
+PurchaseOrderID,
+VendorID,
+OrderDate,
+TotalDue,
+  (SELECT COUNT(*) FROM Purchasing.PurchaseOrderDetail T2
+   WHERE T1.PurchaseOrderID = T2.PurchaseOrderID AND T2.RejectedQty = 0)
+FROM AdventureWorks2019.Purchasing.PurchaseOrderHeader T1
+
+--Modify your query to include a second derived field called MostExpensiveItem.
+--This field should return, for each purchase order ID, the UnitPrice of the most expensive item 
+--for that order in the Purchasing.PurchaseOrderDetail table.
+--Use a correlated subquery to do this as well.
+
+SELECT 
+PurchaseOrderID,
+VendorID,
+OrderDate,
+TotalDue,
+(SELECT COUNT(*) FROM Purchasing.PurchaseOrderDetail T2 WHERE T1.PurchaseOrderID = T2.PurchaseOrderID AND T2.RejectedQty = 0) AS NonRejectedItems,
+(SELECT MAX(UnitPrice) FROM Purchasing.PurchaseOrderDetail T2 WHERE T1.PurchaseOrderID = T2.PurchaseOrderID ) AS MostExpensiveItem
+FROM AdventureWorks2019.Purchasing.PurchaseOrderHeader T1
