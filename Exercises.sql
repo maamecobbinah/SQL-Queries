@@ -296,3 +296,13 @@ PIVOT(
 AVG(VacationHours)
 FOR JobTitle IN ([Sales Representative],[Buyer],[Janitor]) 
 )B 
+
+--Modify your query from above  such that the results are broken out by Gender. 
+--Alias the Gender field as "Employee Gender" in your output.
+-- Your output should look like the image below.
+SELECT * FROM 
+(SELECT Gender AS EmployeeGender, JobTitle, VacationHours FROM HumanResources.Employee) A
+PIVOT(
+AVG(VacationHours)
+FOR JobTitle IN ([Sales Representative],[Buyer],[Janitor]) 
+)B 
