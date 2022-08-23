@@ -323,3 +323,20 @@ SELECT DATEADD(MONTH, 1, MyDate)
 FROM DateSeries
 WHERE MyDate <  CAST('12-01-2029' AS DATE))
 SELECT MyDate FROM DateSeries  OPTION(MAXRECURSION 365)
+
+---User defined Functions
+CREATE FUNCTION dbo.ufnElapsedBusinessDays(@StartDate DATE, @EndDate DATE)
+RETURNS INT
+AS  
+BEGIN
+	RETURN 
+		(
+			SELECT
+				COUNT(*)
+			FROM AdventureWorks2019.dbo.Calendar
+			WHERE DateValue BETWEEN @StartDate AND @EndDate
+				AND WeekendFlag = 0
+				AND HolidayFlag = 0
+		)	- 1
+END
+
